@@ -2,7 +2,7 @@ local collision=require "utils"
 local width=display.contentWidth
 local height=display.contentHeight
 local player1=display.newRect(0,0,6,100)
-local move={x=2,y=.3}
+local move={x=5,y=1}
 local player1Score=0
 local player2Score=0
 local mt
@@ -49,16 +49,19 @@ player2Loose.y=height*0.5
 local ball=display.newCircle(5,5,10)
 ball.x=display.contentCenterX
 ball.y=display.contentCenterY
-rePlay=function()
+rePlay=function(tx)
 	ball.x=display.contentCenterX
 	ball.y=display.contentCenterY
-	move={x=2,y=3}
-	mt=timer.performWithDelay(10,updateBall,-1)
+	move={x=5,y=1}
+	mt=timer.performWithDelay(10,function(e)
+        if tx ~=nil then   display.remove(tx) end
+        updateBall(e)
+    end,-1)
+
 
 end
 updateBall=function(e)	
 	if collision.hasCollideRect(player1,ball) then
-		
 		if math.random(1,5)>2 then
 			move.y=move.y*0.5
 			move.x=-1.5*move.x
@@ -70,7 +73,6 @@ updateBall=function(e)
 
 	end
 	if collision.hasCollideRect(player2,ball) then
-		
 		if math.random(1,5)>2 then
 			move.y=move.y*0.5
 			move.x=-1.5*move.x
@@ -85,26 +87,41 @@ updateBall=function(e)
 	if ball.y<-5 then 
 		move.y=move.y*-1
 	end
-	if ball.x<-ball.width*0.5 then 
-		print("oyuncu 2 puan aldi")
+	if ball.x<-25 then
 		player2Score=player2Score+1
 		player2Text.text="Rakip Skor :"..player2Score
 		timer.pause(mt)
-		rePlay()
+        ball.x=-height
+        local tx=display.newText("Rakip Puan Aldı!",width*0.5,height*0.5,nil,12)
+		timer.performWithDelay(2000,function(e)
+            tx.text="Yeniden başlanıyor..."
+            timer.performWithDelay(1000,function(e)
+            rePlay(tx)
+            end,1)
+
+        end,1)
 		
 	end
-	if ball.x>width then
-		print("oyuncu 1 puan aldi")
+	if ball.x>width-10 then
 		player1Score=player1Score+1
 		player1Text.text="Oyuncu Skor :"..player1Score
-		timer.cancel(mt)
-		rePlay()
+		timer.pause(mt)
+        ball.x=-height
+        local tx=display.newText("Oyuncu Puan Aldı!",width*0.5,height*0.5,nil,12)
+		timer.performWithDelay(2000,function(e)
+            tx.text="Yeniden başlanıyor..."
+            timer.performWithDelay(1000,function(e)
+            rePlay(tx)
+            end,1)
+        end,1)
 
 	end
 	ball.x=ball.x+move.x
 	ball.y=ball.y+move.y
-	if move.x<-10 then move.x=-10 end
-	if move.x>10 then move.y=10 end
+	if move.x>50 then move.x=50 end
+	if move.x<-50 then move.x=-50 end
+	if move.y>50 then move.y=50 end
+	if move.y<-50 then move.y=-50 end
 
 end
 
